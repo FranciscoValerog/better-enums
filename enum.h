@@ -13,6 +13,13 @@
 #include <iosfwd>
 #include <stdexcept>
 
+constexpr unsigned floorlog2(unsigned x) {
+    return x == 1 ? 0 : 1 + floorlog2(x >> 1);
+}
+
+constexpr unsigned ceillog2(unsigned x) {
+    return x == 1 || x == 0 ? 1 : floorlog2(x - 1) + 1;
+}
 
 // in-line, non-#pragma warning handling
 // not supported in very old compilers (namely gcc 4.4 or less)
@@ -416,6 +423,7 @@ struct _iterable {
     BETTER_ENUMS_CONSTEXPR_ iterator end() const
         { return iterator(_array + _size); }
     BETTER_ENUMS_CONSTEXPR_ std::size_t size() const { return _size; }
+    BETTER_ENUMS_CONSTEXPR_ unsigned int width() const { return ceillog2(size()); }
     BETTER_ENUMS_CONSTEXPR_ const Element& operator [](std::size_t index) const
         { return _array[index]; }
 
@@ -683,6 +691,7 @@ class Enum {                                                                   \
         BETTER_ENUMS_ID(BETTER_ENUMS_PP_COUNT(__VA_ARGS__));                   \
     BETTER_ENUMS_CONSTEXPR_ static std::size_t _size()                         \
         { return _size_constant; }                                             \
+    BETTER_ENUMS_CONSTEXPR_ static unsigned int width() { return ceillog2(_size());}\
                                                                                \
     BETTER_ENUMS_CONSTEXPR_ static const char* _name();                        \
     BETTER_ENUMS_CONSTEXPR_ static _value_iterable _values();                  \
